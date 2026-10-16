@@ -1,0 +1,49 @@
+name: assemble
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify transport parts
+        run: |
+          set -euo pipefail
+          verify() {
+            actual=$(printf '%s' "$(cat "$1")" | sha256sum | cut -d' ' -f1)
+            if [ "$actual" != "$2" ]; then
+              echo "MISMATCH $1: $actual != $2"
+              exit 1
+            fi
+            echo "ok $1"
+          }
+          verify parts/op-01.b64 8de6cdbf3e09aeb02410edf18f62d8c2ca91cf255d388505de3e6cb111976c80
+          verify parts/pc-01.b64 490b2a1f0183914a9f4f32d3d16513e67083835749cc1d8bb63ad7419b7a7643
+          verify parts/pc-02.b64 efa2dc50feb24729284372bb206c64e589bf726625ffd8d7499e9733d25b198e
+          verify parts/pc-03.b64 29e746813aeea151e0961afad38814016a4a7fe2701a3247957bf418ad46dcba
+          verify parts/pc-04.b64 1a29a58610ef6208f2b9e3e6fca111e33c07ca64b9fe66c8e44712a984048def
+      - name: Assemble files
+        run: |
+          set -euo pipefail
+          base64 -d parts/op-01.b64 | gunzip > op.tmp
+          test "$(git hash-object op.tmp)" = "994c7c7334b889fc7c621dcee3e7834feca8e4c4"
+          mkdir -p src/pages/operator
+          mv op.tmp src/pages/operator/OperatorPages.tsx
+          cat parts/pc-01.b64 parts/pc-02.b64 parts/pc-03.b64 parts/pc-04.b64 | base64 -d | gunzip > package-lock.json
+          test "$(git hash-object package-lock.json)" = "41793363d631e02162efe35e04a5357d65a975f2"
+          echo "assembled operator page + lockfile"
+      - name: Commit result
+        run: |
+          set -euo pipefail
+          git rm -r -q parts
+          git rm -q .github/workflows/assemble.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "feat(operator): add operator console pages and project lockfile"
+          git push
