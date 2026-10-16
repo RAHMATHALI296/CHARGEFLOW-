@@ -256,16 +256,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         role,
         name: opts?.name ?? (role === 'operator' ? 'Priya Nair' : prev.profile.name),
         email: opts?.email ?? (role === 'operator' ? 'ops@chargeflow.demo' : prev.profile.email),
-      },
-    }));
-  }, [apply]);
+      },      }));
+    }, [apply]);
 
   const signOut = useCallback(() => {
     apply((prev) => ({
       ...prev,
-      auth: { ...prev.auth, signedIn: false, role: null },
-    }));
-  }, [apply]);
+      auth: { ...prev.auth, signedIn: false, role: null },      }));
+    }, [apply]);
 
   const resetDemo = useCallback(() => {
     clearState();
@@ -274,7 +272,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Keep the session signed in so repeated demos stay smooth.
       return { ...fresh, auth: prev.auth };
     });
-  }, [apply]);
+  }, []);
 
   const pushNotification = useCallback<AppContextValue['pushNotification']>((n) => {
     apply((prev) => ({
@@ -282,9 +280,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       notifications: [
         { ...n, id: uid('nt'), createdAt: Date.now(), read: false },
         ...prev.notifications,
-      ].slice(0, 60),
-    }));
-  }, [apply]);
+      ].slice(0, 60),      }));
+    }, [apply]);
 
   const createBooking = useCallback<AppContextValue['createBooking']>((input) => {
     let result: CreateBookingResult = { ok: false, error: 'Unable to create booking.' };
@@ -418,9 +415,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateStation = useCallback<AppContextValue['updateStation']>((stationId, patch) => {
     apply((prev) => ({
       ...prev,
-      stations: prev.stations.map((s) => (s.id === stationId ? { ...s, ...patch } : s)),
-    }));
-  }, [apply]);
+      stations: prev.stations.map((s) => (s.id === stationId ? { ...s, ...patch } : s)),      }));
+    }, [apply]);
 
   const processPayment = useCallback<AppContextValue['processPayment']>((req) => {
     if (!Number.isFinite(req.amount) || req.amount <= 0) {
@@ -669,16 +665,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const markNotificationRead = useCallback<AppContextValue['markNotificationRead']>((id) => {
     apply((prev) => ({
       ...prev,
-      notifications: prev.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
-    }));
-  }, [apply]);
+      notifications: prev.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),      }));
+    }, [apply]);
 
   const markAllNotificationsRead = useCallback(() => {
     apply((prev) => ({
       ...prev,
-      notifications: prev.notifications.map((n) => (n.read ? n : { ...n, read: true })),
-    }));
-  }, [apply]);
+      notifications: prev.notifications.map((n) => (n.read ? n : { ...n, read: true })),      }));
+    }, [apply]);
 
   const saveReview = useCallback<AppContextValue['saveReview']>((stationId, rating, text) => {
     apply((prev) => {
