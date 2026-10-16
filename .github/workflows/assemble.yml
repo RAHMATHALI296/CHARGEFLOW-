@@ -51,8 +51,8 @@ jobs:
       - name: Commit result
         run: |
           set -euo pipefail
-          git rm -r -q parts
-          git rm -q .github/workflows/assemble.yml
+          git rm -r -f -q parts
+          git rm -f -q .github/workflows/assemble.yml
           git add -A
           git status --short
           git config user.name "github-actions[bot]"
